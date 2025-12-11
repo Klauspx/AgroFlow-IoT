@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recuperar Senha - AgroFlow</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="app-root">
+      <div class="login-box">
+        <img src="img/logo-agroflow.png" alt="AgroFlow Logo" class="logo" />
+
+        <form class="login-form">
+          <input type="email" placeholder="E-mail" required />
+          <input type="password" placeholder="Senha" required />
+          <input type="password" placeholder="Confirme sua senha" required />
+
+          <div class="checkbox">
+            <input type="radio" id="email" name="envio" required />
+            <label for="email">Enviar link pro e-mail</label>
+          </div>
+
+          <div class="checkbox">
+            <input type="radio" id="sms" name="envio" required />
+            <label for="sms">Enviar link pro SMS</label>
+          </div>
+
+          <button type="submit" class="btn-primary">Entrar</button>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>

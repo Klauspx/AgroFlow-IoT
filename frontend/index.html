@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - AgroFlow</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .header-bar { width: 100%; background: #6fa64f; height: 60px; border-radius: 8px; display: flex; justify-content: center; align-items: center; margin-bottom: 2rem; position: relative; }
+      .header-logo { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); height: 85px; width: auto; z-index: 10; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); }
+      .header-title { color: white; font-size: 1.4rem; font-weight: 700; margin: 0; text-shadow: 0 1px 2px rgba(0,0,0,0.2); margin-left: 30px; }
+    </style>
+  </head>
+  <body>
+    <div class="app-root">
+      <div class="login-box">
+        
+        <header class="header-bar">
+          <img src="img/logo-agroflow.png" class="header-logo" alt="Logo" />
+          <span class="header-title">AgroFlow</span>
+        </header>
+
+        <form class="login-form" onsubmit="fazerLogin(event)">
+          <input type="email" id="email-login" placeholder="E-mail" required />
+          <input type="password" id="senha-login" placeholder="Senha" required />
+
+          <div class="options">
+            <a href="recuperar.html" class="link">Não sabe sua senha? <span>Clique aqui</span></a>
+            <label class="checkbox">
+              <input type="checkbox" />
+              <span>Lembrar de mim</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn-primary">Entrar</button>
+
+          <div class="divider">ou</div>
+
+          <div class="social-buttons">
+            <button type="button" class="btn-social google"><span>G+</span> Google</button>
+            <button type="button" class="btn-social facebook"><span>f</span> Facebook</button>
+          </div>
+
+          <p class="signup">
+            Não tem conta? Crie clicando em <a href="cadastro.html">Cadastre-se</a>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:8080/api";
+
+      async function fazerLogin(event) {
+        event.preventDefault(); 
+
+        const email = document.getElementById('email-login').value;
+        const senha = document.getElementById('senha-login').value;
+
+        const dados = { email: email, senha: senha };
+
+        try {
+            const response = await fetch(`${API_URL}/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            if (response.ok) {
+                // Login Sucesso!
+                window.location.href = "Entrar.html"; 
+            } else {
+                alert("E-mail ou senha incorretos!");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Erro ao conectar. O backend está rodando?");
+        }
+      }
+    </script>
+  </body>
+</html>

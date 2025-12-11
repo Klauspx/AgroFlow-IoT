@@ -1,0 +1,14 @@
+# Ignorar arquivos do Java/Maven
+**/target/
+**/.mvn/
+**/mvnw
+**/mvnw.cmd
+**/.idea/
+**/*.class
+**/*.iml
+
+# Ignorar configurações do VS Code
+.vscode/
+
+# Logs
+*.log

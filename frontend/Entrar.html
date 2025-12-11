@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Programa - AgroFlow</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    
+    <style>
+      /* --- CORREÇÃO DO CABEÇALHO VERDE --- */
+      .header-bar {
+        width: 100%;
+        background: #6fa64f;
+        height: 60px; 
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 2.5rem; /* Espaço para a logo vazar */
+        position: relative;
+        z-index: 1;
+      }
+
+      .header-logo {
+        position: absolute;
+        left: 0px;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 90px; /* Logo grande vazando */
+        width: auto;
+        z-index: 10;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+      }
+
+      .header-title {
+        color: white;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        margin-left: 40px; /* Empurra texto para a direita */
+      }
+
+      .kebab-menu-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        padding: 0 5px;
+        z-index: 10;
+      }
+      
+      /* Dropdown */
+      .dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background-color: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20; min-width: 150px; margin-top: 5px; overflow: hidden; }
+      .dropdown-menu.show { display: block; }
+      .dropdown-menu a { display: block; padding: 12px 16px; text-decoration: none; color: #333; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
+      .dropdown-menu a:hover { background-color: #f5f5f5; color: #1e3f9f; }
+
+      /* Legenda e Lista */
+      .status-legend { display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 1rem; font-size: 0.85rem; color: #555; background-color: #f8f9fa; padding: 0.5rem; border-radius: 8px; }
+      .legend-item { display: flex; align-items: center; gap: 0.4rem; font-weight: 600; }
+      .program-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem; }
+
+      /* Estilos de Bolinhas */
+      .program-card { position: relative; }
+      .status-dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #fff; }
+      .program-card .status-dot { position: absolute; top: 15px; right: 15px; width: 14px; height: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+      .status-dot.on { background-color: #28a745; box-shadow: 0 0 6px #28a745; }
+      .status-dot.off { background-color: #dc3545; }
+      .legend-item .status-dot { border: none; }
+    </style>
+  </head>
+  <body>
+    <div class="app-root">
+      <div class="login-box">
+        
+        <header class="header-bar">
+          <img src="img/logo-agroflow.png" class="header-logo" alt="Logo" />
+          <span class="header-title">Programa</span>
+          <button class="kebab-menu-btn" onclick="toggleMenu()">&#8942;</button>
+          <div class="dropdown-menu" id="mainMenu">
+            <a href="#" class="active">Programa</a>
+            <a href="FAQ.html">FAQ (Dúvidas)</a>
+          </div>
+        </header>
+
+        <div class="status-legend">
+            <div class="legend-item">
+                <span class="status-dot on"></span>
+                <span>Funcionando</span>
+            </div>
+            <div class="legend-item">
+                <span class="status-dot off"></span>
+                <span>Manutenção</span>
+            </div>
+        </div>
+
+        <div class="program-list">
+           <p style="text-align: center; color: #666;">Carregando dados...</p>
+        </div>
+
+        <a href="adicionar.html" class="add-box"><span>+</span></a>
+      </div>
+    </div>
+
+    <script>
+      function toggleMenu() {
+          const menu = document.getElementById('mainMenu');
+          menu.classList.toggle('show');
+      }
+      window.onclick = function(event) {
+        if (!event.target.matches('.kebab-menu-btn')) {
+          const dropdowns = document.getElementsByClassName("dropdown-menu");
+          for (let i = 0; i < dropdowns.length; i++) {
+            if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+          }
+        }
+      }
+
+      // --- LÓGICA PRINCIPAL ---
+      const API_URL = "http://localhost:8080/api";
+
+      async function carregarSensores() {
+        try {
+          const response = await fetch(`${API_URL}/sensores`);
+          const regioes = await response.json();
+          
+          const list = document.querySelector('.program-list');
+          list.innerHTML = ''; 
+
+          regioes.forEach((regiao) => {
+            // AQUI ESTÁ A MUDANÇA: Usamos o nome real do banco!
+            // Se o nome estiver vazio por algum motivo, usa "Sem Nome"
+            const nomeRegiao = regiao.nome || `Sensor ${regiao.id}`;
+            
+            const card = document.createElement('a');
+            card.className = 'program-card';
+            card.href = `atividade.html?id=${regiao.id}`;
+            card.style.textDecoration = 'none';
+            card.style.color = 'inherit';
+
+            // Lógica de Visualização
+            const dotClass = regiao.ativo ? 'on' : 'off';
+            let textoStatusBomba = '';
+            
+            if (!regiao.ativo) {
+                textoStatusBomba = '<span class="closed">Fechada (Manut.)</span>';
+            } else {
+                // Limite padrão 40% (ou usa o limite do sensor se tiver)
+                const limite = regiao.limiteAtivacao || 40;
+                if (regiao.umidade < limite) { 
+                    textoStatusBomba = '<span class="open">Aberta (Auto)</span>';
+                } else {
+                    textoStatusBomba = '<span class="closed">Fechada (Auto)</span>';
+                }
+            }
+
+            const umi = regiao.umidade ? regiao.umidade.toFixed(1) : '0';
+            const temp = regiao.temperatura ? regiao.temperatura.toFixed(1) : '0';
+
+            card.innerHTML = `
+              <div class="status-dot ${dotClass}" title="Status"></div>
+
+              <div class="program-info">
+                <h2 class="program-title">${nomeRegiao}</h2>
+                <p>Umidade: <span>${umi}%</span></p>
+                <p>Temperatura: <span>${temp}°C</span></p>
+                <p>Bomba: ${textoStatusBomba}</p>
+              </div>
+              <div style="color: #1e3f9f; font-size: 1.5rem;">&rsaquo;</div>
+            `;
+            list.appendChild(card);
+          });
+
+        } catch (error) {
+          console.error("Erro:", error);
+        }
+      }
+
+      setInterval(carregarSensores, 2000);
+      window.addEventListener('load', carregarSensores);
+    </script>
+  </body>
+</html>

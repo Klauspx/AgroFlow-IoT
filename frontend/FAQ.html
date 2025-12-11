@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dúvidas - AgroFlow</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      /* --- CABEÇALHO PADRONIZADO (LOGO GRANDE) --- */
+      .header-bar {
+        width: 100%;
+        background: #6fa64f;
+        height: 60px;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 2.5rem; /* Espaço para a logo vazar */
+        position: relative;
+        z-index: 1;
+      }
+
+      .header-logo {
+        position: absolute;
+        left: -5px;
+        top: 50%;
+        transform: translateY(-50%);
+        height: 90px; /* Logo Grande */
+        width: auto;
+        z-index: 10;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+      }
+
+      .header-title {
+        color: white;
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        margin-left: 40px; /* Empurra texto para não bater na logo */
+      }
+
+      .kebab-menu-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        font-size: 1.8rem;
+        font-weight: bold;
+        color: white;
+        cursor: pointer;
+        padding: 0 5px;
+        z-index: 10;
+      }
+
+      /* Dropdown Menu */
+      .dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background-color: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20; min-width: 150px; margin-top: 5px; overflow: hidden; }
+      .dropdown-menu.show { display: block; }
+      .dropdown-menu a { display: block; padding: 12px 16px; text-decoration: none; color: #333; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
+      .dropdown-menu a:hover { background-color: #f5f5f5; color: #1e3f9f; }
+      .dropdown-menu a.active { font-weight: 700; color: #1e3f9f; background-color: #f9f9fc; }
+
+      /* --- ESTILOS DO FAQ --- */
+      details { background: #fff; border: 1px solid #1e3f9f; border-radius: 8px; margin-bottom: 0.8rem; overflow: hidden; transition: all 0.3s ease; }
+      summary { padding: 1rem; font-weight: 600; color: #1e3f9f; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+      summary::-webkit-details-marker { display: none; }
+      summary::after { content: '+'; font-size: 1.5rem; font-weight: bold; color: #1e3f9f; transition: transform 0.3s; }
+      details[open] summary::after { transform: rotate(45deg); }
+      details[open] { background: #f9f9fc; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+      .faq-answer { padding: 0 1rem 1rem 1rem; font-size: 0.95rem; color: #555; line-height: 1.5; border-top: 1px solid #e0e0e0; animation: slideDown 0.3s ease-out; }
+      @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+      
+      /* Layout Box */
+      .login-box { min-height: 85vh; display: flex; flex-direction: column; position: relative; }
+      .faq-list { flex: 1; overflow-y: auto; margin-bottom: 1rem; }
+      .faq-input-wrapper { display: flex; gap: 0.5rem; padding-top: 1rem; border-top: 2px solid #f0f0f0; margin-top: auto; }
+      .faq-input { flex: 1; padding: 0.8rem; border: 1px solid #ccc; border-radius: 8px; outline: none; transition: border-color 0.2s; }
+      .faq-input:focus { border-color: #1e3f9f; }
+      .btn-send { background: #1e3f9f; color: white; border: none; border-radius: 8px; width: 45px; cursor: pointer; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+      .btn-send:hover { background: #153080; }
+    </style>
+  </head>
+  <body>
+    <div class="app-root">
+      <div class="login-box">
+        
+        <header class="header-bar">
+          <img src="img/logo-agroflow.png" class="header-logo" alt="Logo" />
+          <span class="header-title">Dúvidas</span>
+          
+          <button class="kebab-menu-btn" onclick="toggleMenu()">&#8942;</button>
+          <div class="dropdown-menu" id="mainMenu">
+            <a href="Entrar.html">Programa</a>
+            <a href="#" class="active">FAQ (Dúvidas)</a>
+          </div>
+        </header>
+
+        <div class="faq-list">
+          <details>
+            <summary>Posso cadastrar mais de uma região?</summary>
+            <div class="faq-answer">Sim! O AgroFlow suporta múltiplas regiões. Você pode adicionar novos setores clicando no botão "+" na tela de Programa.</div>
+          </details>
+          <details>
+            <summary>Os dados ficam salvos na nuvem?</summary>
+            <div class="faq-answer">Com certeza. Todos os dados de histórico e configuração são sincronizados com nosso servidor seguro em tempo real.</div>
+          </details>
+          <details>
+            <summary>Como funciona a automação?</summary>
+            <div class="faq-answer">O sistema lê a umidade do solo a cada poucos segundos. Se ela cair abaixo do limite que você definiu (ex: 40%), a bomba é ligada automaticamente.</div>
+          </details>
+           <details>
+            <summary>O que significa a luz vermelha?</summary>
+            <div class="faq-answer">A luz vermelha indica que o setor está em "Modo de Manutenção". Isso significa que você desligou a automação manualmente pelo painel de atividades.</div>
+          </details>
+        </div>
+
+        <div class="faq-input-wrapper">
+          <input type="text" class="faq-input" placeholder="Digite sua dúvida..." />
+          <button class="btn-send">➤</button>
+        </div>
+
+      </div>
+    </div>
+
+    <script>
+      function toggleMenu() {
+          const menu = document.getElementById('mainMenu');
+          menu.classList.toggle('show');
+      }
+      window.onclick = function(event) {
+        if (!event.target.matches('.kebab-menu-btn')) {
+          const dropdowns = document.getElementsByClassName("dropdown-menu");
+          for (let i = 0; i < dropdowns.length; i++) {
+            if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+          }
+        }
+      }
+    </script>
+  </body>
+</html>

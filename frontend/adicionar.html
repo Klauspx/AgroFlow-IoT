@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Adicionar - AgroFlow</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      .header-bar {
+        width: 100%; background: #6fa64f; height: 60px; border-radius: 8px;
+        display: flex; justify-content: center; align-items: center;
+        margin-bottom: 0.5rem; position: relative; z-index: 1;
+      }
+      .header-logo {
+        position: absolute; left: -5px; top: 50%; transform: translateY(-50%);
+        height: 90px; width: auto; z-index: 10;
+        filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+      }
+      .header-title {
+        color: white; font-size: 1.4rem; font-weight: 700; margin: 0;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2); margin-left: 40px;
+      }
+      .kebab-menu-btn {
+        position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+        background: none; border: none; font-size: 1.8rem; font-weight: bold; color: white;
+        cursor: pointer; padding: 0 5px; z-index: 10;
+      }
+      .dropdown-menu { display: none; position: absolute; top: 100%; right: 0; background-color: white; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 20; min-width: 150px; margin-top: 5px; overflow: hidden; }
+      .dropdown-menu.show { display: block; }
+      .dropdown-menu a { display: block; padding: 12px 16px; text-decoration: none; color: #333; border-bottom: 1px solid #f0f0f0; font-size: 0.95rem; }
+      .dropdown-menu a:hover { background-color: #f5f5f5; color: #1e3f9f; }
+      .btn-back {
+        display: block; margin-bottom: 15px; color: #1e3f9f; text-decoration: none;
+        font-size: 2.5rem; font-weight: bold; line-height: 1; width: fit-content;
+        transition: transform 0.2s; padding: 0 5px;
+      }
+      .btn-back:hover { transform: translateX(-3px); }
+      .add-form { display: flex; flex-direction: column; gap: 1rem; }
+      .input-group { margin-bottom: 0.5rem; }
+      .input-label { display: block; margin-bottom: 0.3rem; color: #1e3f9f; font-weight: 700; font-size: 0.95rem; }
+      .input-field { width: 100%; padding: 0.8rem; border: 1px solid #1e3f9f; border-radius: 8px; background: #f8f9fc; font-size: 1rem; outline: none; }
+      .input-field::placeholder { color: #aaa; font-style: italic; font-weight: 400; }
+      .input-field:focus { box-shadow: 0 0 0 2px rgba(30, 63, 159, 0.2); }
+    </style>
+  </head>
+  <body>
+    <div class="app-root">
+      <div class="login-box">
+        
+        <header class="header-bar">
+          <img src="img/logo-agroflow.png" class="header-logo" alt="Logo" />
+          <span class="header-title">Adicionar</span>
+          <button class="kebab-menu-btn" onclick="toggleMenu()">&#8942;</button>
+          <div class="dropdown-menu" id="mainMenu">
+            <a href="Entrar.html">Programa</a>
+            <a href="manual.html">FAQ</a>
+          </div>
+        </header>
+
+        <a href="Entrar.html" class="btn-back" title="Voltar">&#8249;</a>
+
+        <form class="add-form" onsubmit="adicionarRegiao(event)">
+          
+          <div class="input-group">
+            <label class="input-label">Nome da área</label>
+            <input type="text" id="input-nome" class="input-field" placeholder="Ex: Região E" required />
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Local</label>
+            <input type="text" class="input-field" placeholder="Localização" />
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Plantio</label>
+            <input type="text" class="input-field" placeholder="Tipo de plantio" />
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Umidade Mínima (%)</label>
+            <input type="number" id="input-limite" class="input-field" placeholder="Ex: 40" required />
+          </div>
+
+          <div class="input-group">
+            <label class="input-label">Temperatura Ideal</label>
+            <input type="text" class="input-field" placeholder="Opcional" />
+          </div>
+
+          <button type="submit" class="btn-primary">Adicionar</button>
+        </form>
+
+      </div>
+    </div>
+    <script>
+      function toggleMenu() {
+          const menu = document.getElementById('mainMenu');
+          menu.classList.toggle('show');
+      }
+      window.onclick = function(event) {
+        if (!event.target.matches('.kebab-menu-btn')) {
+          const dropdowns = document.getElementsByClassName("dropdown-menu");
+          for (let i = 0; i < dropdowns.length; i++) {
+            if (dropdowns[i].classList.contains('show')) dropdowns[i].classList.remove('show');
+          }
+        }
+      }
+
+      // --- LÓGICA DE ADICIONAR ---
+      const API_URL = "http://localhost:8080/api";
+
+      async function adicionarRegiao(event) {
+        event.preventDefault(); // Não deixa a página recarregar sozinha
+
+        // Pega os valores dos campos
+        const nome = document.getElementById('input-nome').value;
+        const limite = document.getElementById('input-limite').value;
+
+        // Cria o objeto para enviar
+        const novaRegiao = {
+            nome: nome,
+            limiteAtivacao: parseFloat(limite)
+            // Os outros campos (umidade, temperatura) o Java preenche com 0
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/sensores`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(novaRegiao)
+            });
+
+            if (response.ok) {
+                alert('Região adicionada com sucesso!');
+                // Redireciona para a página principal para ver o novo card
+                window.location.href = 'Entrar.html';
+            } else {
+                alert('Erro ao adicionar.');
+            }
+        } catch (error) {
+            console.error('Erro:', error);
+            alert('Erro de conexão com o servidor.');
+        }
+      }
+    </script>
+  </body>
+</html>

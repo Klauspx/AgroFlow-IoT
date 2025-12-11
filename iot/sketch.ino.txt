@@ -1,0 +1,109 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ESP32Servo.h>
+#include <DHT.h>
+
+// --- CONFIGURAÇÃO ---
+const char* ssid = "Wokwi-GUEST";
+const char* password = "";
+
+// *** LINK NOVO DO LOCAL TUNNEL AQUI EMBAIXO ***
+const char* serverUrl = "https://new-planes-think.loca.lt/api/leitura";
+
+// --- PINOS REGIÃO A ---
+int PINO_UMIDADE_A = 36; // VP (GPIO 36)
+int PINO_TEMP_A = 23;    // GPIO 23
+int PINO_BOMBA_A = 4;    // GPIO 4
+
+// --- PINOS REGIÃO B ---
+int PINO_UMIDADE_B = 39; // VN (GPIO 39)
+int PINO_TEMP_B = 22;    // GPIO 22
+int PINO_BOMBA_B = 5;    // GPIO 5
+
+// --- OBJETOS ---
+Servo servoA;
+Servo servoB;
+DHT dhtA(PINO_TEMP_A, DHT22);
+DHT dhtB(PINO_TEMP_B, DHT22);
+
+unsigned long lastTime = 0;
+unsigned long timerDelay = 3000; // Envia a cada 3 segundos
+
+void setup() {
+  Serial.begin(115200);
+
+  Serial.println("=================================");
+  Serial.println("O ESP32 LIGOU! INICIANDO O SETUP");
+  Serial.println("=================================");
+  
+  // Inicia Servos (Bombas)
+  servoA.attach(PINO_BOMBA_A);
+  servoB.attach(PINO_BOMBA_B);
+  servoA.write(0); // Começa desligada
+  servoB.write(0); // Começa desligada
+  
+  // Inicia Sensores de Temperatura
+  dhtA.begin();
+  dhtB.begin();
+  
+  // Conecta no Wi-Fi
+  WiFi.begin(ssid, password);
+  Serial.print("Conectando ao Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("Conectado!");
+}
+
+// Função que lê, controla e envia os dados de uma região
+void processarRegiao(String nomeRegiao, int pinoUmi, DHT& dhtSensor, Servo& servoBomba) {
+  // 1. Ler Sensores
+  int cru = analogRead(pinoUmi);
+  // Converte 0-4095 para 0-100%
+  float umidade = map(cru, 0, 4095, 0, 100); 
+  float temp = dhtSensor.readTemperature();
+
+  // 2. Controle da Bomba (Automático se umidade < 40%)
+  if (umidade < 40) {
+    servoBomba.write(90); // Liga (Gira o servo)
+  } else {
+    servoBomba.write(0); // Desliga
+  }
+
+  // 3. Enviar para o Backend
+  if (WiFi.status() == WL_CONNECTED) {
+    HTTPClient http;
+    http.begin(serverUrl);
+    http.addHeader("Content-Type", "application/json");
+
+    // --- Envia dado de UMIDADE ---
+    String jsonUmi = "{\"nomeSensor\":\"" + nomeRegiao + "\", \"tipoLeitura\":\"umidade\", \"valor\":" + String(umidade) + "}";
+    http.POST(jsonUmi);
+    
+    // --- Envia dado de TEMPERATURA (se a leitura for válida) ---
+    if (!isnan(temp)) {
+        String jsonTemp = "{\"nomeSensor\":\"" + nomeRegiao + "\", \"tipoLeitura\":\"temperatura\", \"valor\":" + String(temp) + "}";
+        http.POST(jsonTemp);
+    }
+    
+    http.end();
+    Serial.println("Dados enviados para: " + nomeRegiao);
+  }
+}
+
+void loop() {
+  // Executa a cada 'timerDelay' (3 segundos)
+  if ((millis() - lastTime) > timerDelay) {
+    
+    // Processa a Região A
+    processarRegiao("Região A", PINO_UMIDADE_A, dhtA, servoA);
+    
+    delay(1000); // Pequena pausa para não congestionar
+    
+    // Processa a Região B
+    processarRegiao("Região B", PINO_UMIDADE_B, dhtB, servoB);
+    
+    lastTime = millis();
+  }
+}

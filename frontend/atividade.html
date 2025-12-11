@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Atividades</title>
+    <link rel="stylesheet" href="css/reset.css" />
+    <link rel="stylesheet" href="css/style.css" />
+    <style>
+      /* --- CABEÇALHO PADRONIZADO --- */
+      .header-bar {
+        width: 100%; background: #6fa64f; height: 60px; border-radius: 8px;
+        display: flex; justify-content: center; align-items: center;
+        margin-bottom: 0.1rem; position: relative; z-index: 1;
+      }
+      .header-logo {
+        position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+        height: 90px; width: auto;
+      }
+      .header-title {
+        color: white; font-size: 1.4rem; font-weight: 600; margin: 0;
+      }
+      .btn-back {
+        display: block; margin-bottom: 10px; color: #1e3f9f; text-decoration: none;
+        font-size: 4rem; font-weight: bold; line-height: 1; width: fit-content;
+        transition: transform 0.2s; padding: 0 5px;
+      }
+      .btn-back:hover { transform: translateX(-3px); }
+
+      .control-panel { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee; display: flex; flex-direction: row; justify-content: space-between; align-items: center; }
+      .control-label { font-size: 0.95rem; font-weight: 600; color: #333; }
+
+      /* --- ESTILO DO BOTÃO EXCLUIR --- */
+      .btn-delete-wrapper {
+        margin-top: 1.5rem;
+        border-top: 1px solid #eee;
+        padding-top: 1rem;
+        text-align: center;
+      }
+      .btn-delete {
+        background-color: #fff;
+        color: #dc3545; /* Vermelho */
+        border: 2px solid #dc3545;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+        width: 100%;
+      }
+      .btn-delete:hover {
+        background-color: #dc3545;
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app-root">
+      <div class="login-box">
+        
+        <header class="header-bar">
+          <img src="img/logo-agroflow.png" class="header-logo" alt="Logo" />
+          <h2 class="header-title">Atividades</h2>
+        </header>
+
+        <a href="Entrar.html" class="btn-back" title="Voltar">&#8249;</a>
+
+        <div class="activity-wrapper">
+          <div class="activity-card">
+            
+            <div class="activity-head">
+              <h3 class="activity-letter" id="titulo-regiao">Carregando...</h3>
+              <div class="activity-stats" id="stats-regiao">
+                <span>...</span>
+              </div>
+            </div>
+
+            <div class="control-panel">
+                <span class="control-label">Desligue para manutenção</span>
+                <label class="switch">
+                    <input type="checkbox" id="toggle-bomba">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+
+            <hr class="divider" />
+
+            <ul class="activity-list" id="lista-atividades">
+              <li style="text-align: center; color: #999;">Carregando histórico...</li>
+            </ul>
+
+            <div class="btn-delete-wrapper">
+                <button onclick="excluirRegiao()" class="btn-delete">Excluir esta Região</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "http://localhost:8080/api";
+      const params = new URLSearchParams(window.location.search);
+      const sensorId = params.get('id'); 
+
+      async function carregarPagina() {
+        if (!sensorId) return;
+
+        try {
+            const responseSensores = await fetch(`${API_URL}/sensores`);
+            const sensores = await responseSensores.json();
+            const sensor = sensores.find(s => s.id === parseInt(sensorId));
+
+            if (sensor) {
+                document.getElementById('titulo-regiao').innerText = sensor.nome;
+
+                let statusBomba = '';
+                if (!sensor.ativo) {
+                    statusBomba = 'Bom. Fechada (Manut.)';
+                } else {
+                    if (sensor.umidade < 40) {
+                        statusBomba = 'Bom. Aberta';
+                    } else {
+                        statusBomba = 'Bom. Fechada';
+                    }
+                }
+                
+                const valUmi = sensor.umidade ? sensor.umidade.toFixed(1) : '0';
+                const valTemp = sensor.temperatura ? sensor.temperatura.toFixed(1) : '0';
+
+                const statsHtml = `
+                    <span>Umi. ${valUmi}%</span>
+                    <span class="dot">•</span>
+                    <span>Temp. ${valTemp}°C</span>
+                    <span class="dot">•</span>
+                    <span>${statusBomba}</span>
+                `;
+                document.getElementById('stats-regiao').innerHTML = statsHtml;
+                
+                const toggle = document.getElementById('toggle-bomba');
+                toggle.checked = sensor.ativo;
+                toggle.onclick = () => alternarBomba(sensor.id, toggle.checked);
+
+                carregarHistorico(sensor.nome);
+            }
+        } catch (error) {
+            console.error("Erro:", error);
+        }
+      }
+
+      async function alternarBomba(id, novoEstado) {
+          try {
+            const config = [{ id: id, ativo: novoEstado }];
+            await fetch(`${API_URL}/sensores/config`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(config)
+            });
+            setTimeout(carregarPagina, 500); 
+          } catch (error) {
+              alert("Erro ao mudar estado.");
+              document.getElementById('toggle-bomba').checked = !novoEstado;
+          }
+      }
+
+      // --- FUNÇÃO DE EXCLUIR ---
+      async function excluirRegiao() {
+          if (!sensorId) return;
+          
+          // Pergunta de segurança
+          const confirmacao = confirm("Tem certeza que deseja excluir esta região? Isso não pode ser desfeito.");
+          
+          if (confirmacao) {
+              try {
+                  const response = await fetch(`${API_URL}/sensores/${sensorId}`, {
+                      method: 'DELETE'
+                  });
+
+                  if (response.ok) {
+                      alert("Região excluída com sucesso!");
+                      // Volta para a página principal
+                      window.location.href = "Entrar.html";
+                  } else {
+                      alert("Erro ao excluir. Tente novamente.");
+                  }
+              } catch (error) {
+                  console.error("Erro:", error);
+                  alert("Erro de conexão com o servidor.");
+              }
+          }
+      }
+
+      async function carregarHistorico(nomeSensorFiltrar) {
+        try {
+            const response = await fetch(`${API_URL}/historico`);
+            const historico = await response.json();
+            
+            const listaElement = document.getElementById('lista-atividades');
+            listaElement.innerHTML = ''; 
+
+            const historicoFiltrado = historico.filter(evento => evento.sensorNome === nomeSensorFiltrar);
+
+            if (historicoFiltrado.length === 0) {
+                listaElement.innerHTML = '<li style="text-align: center; color: #999;">Nenhuma atividade recente.</li>';
+                return;
+            }
+
+            historicoFiltrado.forEach(evento => {
+                const item = document.createElement('li');
+                const dataObj = new Date(evento.dataHora);
+                const dataFormatada = dataObj.toLocaleDateString('pt-BR');
+                const horaFormatada = dataObj.toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'});
+                
+                const textoBackend = evento.acao; 
+                let corEstilo = 'color: #a31212;'; 
+                // Verifica se contém "Ligou" ou "Ativado"
+                if (textoBackend.includes('Ligou') || textoBackend.includes('Ativado')) {
+                    corEstilo = 'color: #0b7c22;'; // Verde
+                }
+
+                item.innerHTML = `${dataFormatada} - ${horaFormatada}h <span style="float:right; ${corEstilo} font-weight:bold;">${textoBackend}</span>`;
+                listaElement.appendChild(item);
+            });
+        } catch (error) {}
+      }
+
+      window.addEventListener('load', carregarPagina);
+    </script>
+  </body>
+</html>
