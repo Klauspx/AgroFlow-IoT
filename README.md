@@ -7,13 +7,13 @@ Sistema IoT completo para monitoramento e automação de irrigação, desenvolvi
 ### Painel Principal & Detalhes (Web e Mobile)
 Visão geral das regiões e controle detalhado, responsivo para computador e celular.
 <p float="left">
-  <img src="screenshots/painel_principal" width="45%" alt="Painel Principal Web" />
-  <img src="screenshots/detalhes_regiao" width="45%" alt="Detalhes da Região Web" />
+  <img src="screenshots/painel_principal.png" width="45%" alt="Painel Principal Web" />
+  <img src="screenshots/detalhes_regiao.png" width="45%" alt="Detalhes da Região Web" />
 </p>
 
 ### Simulação IoT (Wokwi)
 O circuito completo simulado, conectando o ESP32 aos sensores e atuadores.
-<img src="screenshots/diagrama_wokwi" width="80%" alt="Diagrama Wokwi" />
+<img src="screenshots/diagrama_wokwi.png" width="80%" alt="Diagrama Wokwi" />
 
 ## 🚀 Tecnologias Utilizadas
 
