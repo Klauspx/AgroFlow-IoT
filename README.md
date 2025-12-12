@@ -6,7 +6,7 @@ Sistema IoT completo para monitoramento e automação de irrigação, desenvolvi
 
 ### Painel Principal
 Visão geral de todas as regiões monitoradas em tempo real.
-![Painel Principal](screenshots/detalhes_regiao.png)
+![Painel Principal](screenshots/painel_principal.png)
 
 ### Detalhes e Histórico
 Controle manual da bomba e histórico de atividades da região.
