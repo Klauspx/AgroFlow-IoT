@@ -4,17 +4,16 @@ Sistema IoT completo para monitoramento e automação de irrigação, desenvolvi
 
 ## 📸 Telas do Sistema
 
-### Painel Principal
-Visão geral de todas as regiões monitoradas em tempo real.
-![Painel Principal](screenshots/painel_principal.png)
-
-### Detalhes e Histórico
-Controle manual da bomba e histórico de atividades da região.
-![Detalhes da Região](screenshots/detalhes_regiao.png)
+### Painel Principal & Detalhes (Web e Mobile)
+Visão geral das regiões e controle detalhado, responsivo para computador e celular.
+<p float="left">
+  <img src="screenshots/painel_principal" width="45%" alt="Painel Principal Web" />
+  <img src="screenshots/detalhes_regiao" width="45%" alt="Detalhes da Região Web" />
+</p>
 
 ### Simulação IoT (Wokwi)
-Circuito com ESP32, sensores DHT22 e relés para as bombas.
-![Diagrama Wokwi](screenshots/diagrama_wokwi.png)
+O circuito completo simulado, conectando o ESP32 aos sensores e atuadores.
+<img src="screenshots/diagrama_wokwi" width="80%" alt="Diagrama Wokwi" />
 
 ## 🚀 Tecnologias Utilizadas
 
