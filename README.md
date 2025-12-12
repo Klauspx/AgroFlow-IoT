@@ -2,6 +2,20 @@
 
 Sistema IoT completo para monitoramento e automação de irrigação, desenvolvido para auxiliar agricultores no controle de umidade e temperatura do solo.
 
+## 📸 Telas do Sistema
+
+### Painel Principal
+Visão geral de todas as regiões monitoradas em tempo real.
+![Painel Principal](screenshots/painel_principal.png)
+
+### Detalhes e Histórico
+Controle manual da bomba e histórico de atividades da região.
+![Detalhes da Região](screenshots/detalhes_regiao.png)
+
+### Simulação IoT (Wokwi)
+Circuito com ESP32, sensores DHT22 e relés para as bombas.
+![Diagrama Wokwi](screenshots/diagrama_wokwi.png)
+
 ## 🚀 Tecnologias Utilizadas
 
 ### Backend
